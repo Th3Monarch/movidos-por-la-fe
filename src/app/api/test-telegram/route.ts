@@ -3,18 +3,19 @@ import { sendTelegramNotification } from "@/lib/telegram";
 
 export async function GET() {
   const hasToken = !!process.env.TELEGRAM_BOT_TOKEN;
-  const hasChatId = !!process.env.TELEGRAM_CHAT_ID;
+  const chatIds = (process.env.TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID || "").split(",").filter(Boolean);
 
-  if (!hasToken || !hasChatId) {
+  if (!hasToken || chatIds.length === 0) {
     return NextResponse.json({
       ok: false,
       error: "Faltan variables de entorno",
       token_set: hasToken,
-      chat_id_set: hasChatId,
+      chat_ids_count: chatIds.length,
     });
   }
 
   const result = await sendTelegramNotification({
+    id: "test",
     name: "🧪 Prueba de Movidos por la Fe",
     state: "Distrito Capital",
     city: "Caracas (Prueba)",
@@ -29,7 +30,7 @@ export async function GET() {
   return NextResponse.json({
     ok: result,
     token_set: hasToken,
-    chat_id_set: hasChatId,
+    chat_ids: chatIds,
     message: result
       ? "✅ Mensaje enviado correctamente a Telegram"
       : "❌ Falló el envío a Telegram. Revisa que el bot sea miembro del grupo y el chat ID sea correcto.",

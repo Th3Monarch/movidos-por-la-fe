@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { error } = await createClient(supabaseUrl, supabaseKey)
+    const { data: inserted, error } = await createClient(supabaseUrl, supabaseKey)
       .from("places")
       .insert([
         {
@@ -27,13 +27,15 @@ export async function POST(request: Request) {
           lat: body.lat || null,
           lng: body.lng || null,
         },
-      ]);
+      ])
+      .select("id");
 
     if (error) {
       return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
     }
 
-    sendTelegramNotification(body).catch(() => {});
+    const id = inserted?.[0]?.id;
+    sendTelegramNotification({ ...body, id }).catch(() => {});
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
