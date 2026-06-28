@@ -71,7 +71,7 @@ export default function CentroAcopioPage() {
         <p className="text-gray-700 font-medium mb-4">{t("acopio.contact_text")}</p>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <a
-            href="https://t.me/+GRUPO_LINK_AQUI"
+            href="https://t.me/movidosporlafe"
             target="_blank"
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl hover:bg-blue-700 transition-colors font-semibold shrink-0"
           >
@@ -81,12 +81,12 @@ export default function CentroAcopioPage() {
             {lang === "es" ? "Entrar al grupo de Telegram" : "Join the Telegram group"}
           </a>
           <a
-            href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://t.me/+GRUPO_LINK_AQUI"
+            href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://t.me/movidosporlafe"
             target="_blank"
             className="block w-24 h-24 rounded-xl overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity shrink-0"
           >
             <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://t.me/+GRUPO_LINK_AQUI"
+              src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://t.me/movidosporlafe"
               alt="QR del grupo de Telegram"
               className="w-full h-full object-cover"
             />
