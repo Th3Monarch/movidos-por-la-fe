@@ -28,11 +28,12 @@ export async function GET() {
   });
 
   return NextResponse.json({
-    ok: result,
+    ok: result.ok,
     token_set: hasToken,
     chat_ids: chatIds,
-    message: result
+    details: result.details,
+    message: result.ok
       ? "✅ Mensaje enviado correctamente a Telegram"
-      : "❌ Falló el envío a Telegram. Revisa que el bot sea miembro del grupo y el chat ID sea correcto.",
+      : "❌ Falló el envío. Revisa los detalles abajo.",
   });
 }

@@ -96,10 +96,10 @@ async function fetchWithTimeout(url: string, options: RequestInit, ms = 20000) {
   }
 }
 
-export async function sendTelegramNotification(data: PlaceData): Promise<boolean> {
+export async function sendTelegramNotification(data: PlaceData): Promise<{ ok: boolean; details?: string }> {
   if (!TELEGRAM_BOT_TOKEN || TELEGRAM_CHAT_IDS.length === 0) {
     console.warn("Telegram not configured");
-    return false;
+    return { ok: false, details: "TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_IDS not set" };
   }
 
   const api = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
@@ -123,14 +123,19 @@ export async function sendTelegramNotification(data: PlaceData): Promise<boolean
           });
 
           if (!res.ok) {
+            const errBody = await res.text();
+            console.warn(`sendMediaGroup failed for ${chatId}:`, errBody);
             const textOnly = await fetchWithTimeout(`${api}/sendMessage`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
             });
-            return textOnly.ok;
+            if (!textOnly.ok) {
+              const err2 = await textOnly.text();
+              return { ok: false, chatId, error: err2 };
+            }
           }
-          return true;
+          return { ok: true, chatId };
         }
 
         const res = await fetchWithTimeout(`${api}/sendMessage`, {
@@ -138,13 +143,26 @@ export async function sendTelegramNotification(data: PlaceData): Promise<boolean
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
         });
-        return res.ok;
+        if (!res.ok) {
+          const errBody = await res.text();
+          console.warn(`sendMessage failed for ${chatId}:`, errBody);
+          return { ok: false, chatId, error: errBody };
+        }
+        return { ok: true, chatId };
       } catch (err) {
         console.warn(`Telegram error for chat ${chatId}:`, err instanceof Error ? err.message : err);
-        return false;
+        return { ok: false, chatId, error: err instanceof Error ? err.message : String(err) };
       }
     }),
   );
 
-  return results.some((r) => r.status === "fulfilled" && r.value);
+  const details = results.map((r) => {
+    if (r.status === "fulfilled") return r.value;
+    return { ok: false, error: r.reason instanceof Error ? r.reason.message : String(r.reason) };
+  });
+
+  return {
+    ok: details.some((d) => d.ok),
+    details: JSON.stringify(details),
+  };
 }
