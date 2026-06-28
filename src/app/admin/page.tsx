@@ -22,9 +22,18 @@ export default function AdminPage() {
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
 
+  const [actionMsg, setActionMsg] = useState<{ id: string; text: string } | null>(null);
+
   useEffect(() => {
     if (authed) fetchPlaces();
   }, [authed]);
+
+  useEffect(() => {
+    if (actionMsg) {
+      const t = setTimeout(() => setActionMsg(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [actionMsg]);
 
   async function fetchPlaces() {
     const { data } = await supabase
@@ -58,6 +67,16 @@ export default function AdminPage() {
     } else {
       alert("Error: " + (result.error || "desconocido"));
     }
+  }
+
+  async function handleResend(id: string) {
+    setActionMsg({ id, text: "Reenviando..." });
+    const res = await fetch(`/api/places/${id}/resend`, {
+      method: "POST",
+      headers: { "x-admin-secret": secret },
+    });
+    const result = await res.json().catch(() => ({ ok: false, error: "Error de conexión" }));
+    setActionMsg({ id, text: result.ok ? "✅ Reenviado" : "❌ Error" });
   }
 
   if (!authed) {
@@ -167,6 +186,13 @@ export default function AdminPage() {
                     Reactivar
                   </button>
                 )}
+                <button
+                  onClick={() => handleResend(p.id)}
+                  disabled={actionMsg?.id === p.id && actionMsg.text === "Reenviando..."}
+                  className="text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  {actionMsg?.id === p.id ? actionMsg.text : "Reenviar"}
+                </button>
                 <button
                   onClick={() => handleAction(p.id, "delete")}
                   className="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-colors"
