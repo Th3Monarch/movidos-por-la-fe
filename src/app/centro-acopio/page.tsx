@@ -70,7 +70,7 @@ export default function CentroAcopioPage() {
       <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
         <p className="text-gray-700 font-medium mb-3">{t("acopio.contact_text")}</p>
         <a
-          href="https://t.me/+gXKabrPnx-E5NmQx"
+          href="https://t.me/movidosporlafe"
           target="_blank"
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
         >
