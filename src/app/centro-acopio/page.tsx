@@ -97,16 +97,6 @@ export default function CentroAcopioPage() {
         <p className="text-gray-700 font-medium mb-3">{t("acopio.contact_text")}</p>
         <div className="flex flex-col sm:flex-row gap-3 text-sm">
           <a
-            href="mailto:movidosporlafe@correo.com"
-            className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="2" />
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-            </svg>
-            movidosporlafe@correo.com
-          </a>
-          <a
             href="https://t.me/movidosporlafe"
             target="_blank"
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors"
