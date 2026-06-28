@@ -96,14 +96,14 @@ export default function CentroAcopioPage() {
       <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
         <p className="text-gray-700 font-medium mb-3">{t("acopio.contact_text")}</p>
         <a
-          href="https://t.me/movidosporlafe"
+          href="https://t.me/+GRUPO_LINK_AQUI"
           target="_blank"
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zM5.5 11.5l11.2-4.4c.5-.2 1 .1 1.1.6l.1.1-.6 10.2c-.1.5-.5.8-1 .8-.4 0-.7-.2-.9-.4l-3.5-2.9-1.7 1.6c-.2.2-.4.3-.7.3l.3-3.8 6.5-5.9c.2-.2 0-.3-.2-.2l-8 5.1-3.6-1.2c-.5-.2-.5-.5-.1-.6z" />
           </svg>
-          {lang === "es" ? "Escribir a @movidosporlafe" : "Message @movidosporlafe"}
+          {lang === "es" ? "Entrar al grupo de Telegram" : "Join the Telegram group"}
         </a>
       </div>
 
