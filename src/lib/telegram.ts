@@ -1,7 +1,9 @@
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID!;
+const TELEGRAM_CHAT_IDS = (process.env.TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID || "").split(",").map(s => s.trim()).filter(Boolean);
+const SITE_URL = process.env.SITE_URL || "https://movidos-por-la-fe.up.railway.app";
 
 interface PlaceData {
+  id?: string | number;
   name: string;
   state: string;
   city: string;
@@ -77,7 +79,7 @@ function buildMessage(data: PlaceData): string {
       ? `<b>🖼 Fotos:</b> ${data.photo_urls.length} adjunta(s)`
       : null,
     `<b>🔗 Ver en web:</b>`,
-    `https://movidosporlafe.vercel.app`,
+    `${SITE_URL}/lugar/${data.id}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -95,7 +97,7 @@ async function fetchWithTimeout(url: string, options: RequestInit, ms = 20000) {
 }
 
 export async function sendTelegramNotification(data: PlaceData): Promise<boolean> {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+  if (!TELEGRAM_BOT_TOKEN || TELEGRAM_CHAT_IDS.length === 0) {
     console.warn("Telegram not configured");
     return false;
   }
@@ -103,41 +105,45 @@ export async function sendTelegramNotification(data: PlaceData): Promise<boolean
   const api = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
   const text = buildMessage(data);
 
-  try {
-    if (data.photo_urls && data.photo_urls.length > 0) {
-      const media = data.photo_urls.slice(0, 10).map((url, i) => ({
-        type: "photo" as const,
-        media: url,
-        caption: i === 0 ? text : undefined,
-        parse_mode: i === 0 ? ("HTML" as const) : undefined,
-      }));
+  let allOk = true;
 
-      const res = await fetchWithTimeout(`${api}/sendMediaGroup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, media }),
-      });
+  for (const chatId of TELEGRAM_CHAT_IDS) {
+    try {
+      if (data.photo_urls && data.photo_urls.length > 0) {
+        const media = data.photo_urls.slice(0, 10).map((url, i) => ({
+          type: "photo" as const,
+          media: url,
+          caption: i === 0 ? text : undefined,
+          parse_mode: i === 0 ? ("HTML" as const) : undefined,
+        }));
 
-      if (!res.ok) {
-        const errText = await res.text();
-        const fallback = await fetchWithTimeout(`${api}/sendMessage`, {
+        const res = await fetchWithTimeout(`${api}/sendMediaGroup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "HTML", disable_web_page_preview: true }),
+          body: JSON.stringify({ chat_id: chatId, media }),
         });
-        return fallback.ok;
-      }
-      return true;
-    }
 
-    const res = await fetchWithTimeout(`${api}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "HTML", disable_web_page_preview: true }),
-    });
-    return res.ok;
-  } catch (err) {
-    console.warn("Telegram notification skipped (timeout or network):", err instanceof Error ? err.message : err);
-    return false;
+        if (!res.ok) {
+          const fallback = await fetchWithTimeout(`${api}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+          });
+          if (!fallback.ok) allOk = false;
+        }
+      } else {
+        const res = await fetchWithTimeout(`${api}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+        });
+        if (!res.ok) allOk = false;
+      }
+    } catch (err) {
+      console.warn(`Telegram error for chat ${chatId}:`, err instanceof Error ? err.message : err);
+      allOk = false;
+    }
   }
+
+  return allOk;
 }
