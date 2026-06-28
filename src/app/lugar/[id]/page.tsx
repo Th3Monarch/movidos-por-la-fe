@@ -147,19 +147,6 @@ export default function PlaceDetailPage() {
             </div>
           )}
 
-          {place.video_urls && place.video_urls.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Videos</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {place.video_urls.map((url, i) => (
-                  <video key={i} controls className="w-full rounded-lg bg-gray-100" preload="metadata">
-                    <source src={url} />
-                  </video>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-2">{t("detail.help_needed")}</h3>
             <div className="flex flex-wrap gap-2">

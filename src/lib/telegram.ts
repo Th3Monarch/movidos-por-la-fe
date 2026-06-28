@@ -75,12 +75,8 @@ function buildMessage(data: PlaceData): string {
     ``,
     `━━━━━━━━━━━━━━━━━━━━━`,
     ``,
-    data.photo_urls && data.photo_urls.length > 0 && data.video_urls && data.video_urls.length > 0
-      ? `<b>📎 Multimedia:</b> ${data.photo_urls.length} foto(s) · ${data.video_urls.length} video(s)`
-      : data.photo_urls && data.photo_urls.length > 0
+    data.photo_urls && data.photo_urls.length > 0
       ? `<b>🖼 Fotos:</b> ${data.photo_urls.length} adjunta(s)`
-      : data.video_urls && data.video_urls.length > 0
-      ? `<b>🎥 Videos:</b> ${data.video_urls.length} adjunto(s)`
       : null,
     `<b>🔗 Ver en web:</b>`,
     `${SITE_URL}/lugar/${data.id}`,
@@ -113,40 +109,27 @@ export async function sendTelegramNotification(data: PlaceData): Promise<boolean
 
   for (const chatId of TELEGRAM_CHAT_IDS) {
     try {
-      if ((data.photo_urls && data.photo_urls.length > 0) || (data.video_urls && data.video_urls.length > 0)) {
-        const media: { type: "photo" | "video"; media: string; caption?: string; parse_mode?: string }[] = [];
+      if (data.photo_urls && data.photo_urls.length > 0) {
+        const media = data.photo_urls.slice(0, 10).map((url, i) => ({
+          type: "photo" as const,
+          media: url,
+          caption: i === 0 ? text : undefined,
+          parse_mode: i === 0 ? ("HTML" as const) : undefined,
+        }));
 
-        if (data.photo_urls) {
-          for (const url of data.photo_urls) {
-            if (media.length >= 10) break;
-            media.push({ type: "photo", media: url });
-          }
-        }
-        if (data.video_urls) {
-          for (const url of data.video_urls) {
-            if (media.length >= 10) break;
-            media.push({ type: "video", media: url });
-          }
-        }
+        const res = await fetchWithTimeout(`${api}/sendMediaGroup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, media }),
+        });
 
-        if (media.length > 0) {
-          media[0].caption = text;
-          media[0].parse_mode = "HTML";
-
-          const res = await fetchWithTimeout(`${api}/sendMediaGroup`, {
+        if (!res.ok) {
+          const textOnly = await fetchWithTimeout(`${api}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: chatId, media }),
+            body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
           });
-
-          if (!res.ok) {
-            const textOnly = await fetchWithTimeout(`${api}/sendMessage`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
-            });
-            if (!textOnly.ok) allOk = false;
-          }
+          if (!textOnly.ok) allOk = false;
         }
       } else {
         const res = await fetchWithTimeout(`${api}/sendMessage`, {

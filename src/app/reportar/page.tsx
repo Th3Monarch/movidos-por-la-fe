@@ -36,7 +36,6 @@ export default function ReportarPage() {
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
-  const [videoUrls, setVideoUrls] = useState<string[]>([]);
   const [locating, setLocating] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -100,14 +99,12 @@ export default function ReportarPage() {
     setError("");
 
     let uploadedPhotos: string[] = [];
-    let uploadedVideos: string[] = [];
 
     if (files.length > 0) {
       setUploading(true);
       for (const file of files) {
         const ext = file.name.split(".").pop();
-        const isVideo = file.type.startsWith("video/");
-        const path = `${isVideo ? "videos" : "fotos"}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const path = `fotos/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
 
         const { data, error: upErr } = await supabase.storage
           .from("reportes")
@@ -124,12 +121,7 @@ export default function ReportarPage() {
           .from("reportes")
           .getPublicUrl(path);
 
-        const url = publicUrl.publicUrl;
-        if (isVideo) {
-          uploadedVideos.push(url);
-        } else {
-          uploadedPhotos.push(url);
-        }
+        uploadedPhotos.push(publicUrl.publicUrl);
       }
       setUploading(false);
     }
@@ -140,7 +132,6 @@ export default function ReportarPage() {
       body: JSON.stringify({
         ...form,
         photo_urls: uploadedPhotos,
-        video_urls: uploadedVideos,
       }),
     });
 
@@ -320,12 +311,12 @@ export default function ReportarPage() {
 
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Fotos y videos del lugar
+            Fotos del lugar
           </label>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*"
+            accept="image/*"
             multiple
             onChange={handleFileChange}
             className="hidden"
@@ -335,7 +326,7 @@ export default function ReportarPage() {
             onClick={() => fileInputRef.current?.click()}
             className="px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors w-full"
           >
-            + Agregar fotos o videos
+            + Agregar fotos
           </button>
           {files.length > 0 && (
             <div className="mt-2 space-y-1">
