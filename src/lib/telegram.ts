@@ -11,6 +11,10 @@ interface PlaceData {
   urgency: string;
   contact_name: string;
   contact_phone: string;
+  photo_urls?: string[];
+  video_urls?: string[];
+  lat?: number | null;
+  lng?: number | null;
 }
 
 const urgencyLabels: Record<string, string> = {
@@ -32,17 +36,19 @@ const helpTypeLabels: Record<string, string> = {
   other: "📦 Otros",
 };
 
-export async function sendTelegramNotification(data: PlaceData): Promise<boolean> {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-    console.warn("Telegram not configured: missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID");
-    return false;
-  }
-
+function buildMessage(data: PlaceData): string {
   const helpLines = data.help_types
     .map((t) => `   ${helpTypeLabels[t] ?? "• " + t}`)
     .join("\n");
 
-  const message = [
+  let mapsLink = "";
+  if (data.lat && data.lng) {
+    mapsLink = `📍 <a href="https://www.google.com/maps?q=${data.lat},${data.lng}">Ver en Google Maps</a>`;
+  } else if (data.address) {
+    mapsLink = `📍 <a href="https://www.google.com/maps/search/${encodeURIComponent(data.address + ", " + data.city + ", " + data.state)}">Ver en Google Maps</a>`;
+  }
+
+  return [
     `🚨 <b>NUEVO REPORTE DE AYUDA 🚨</b>`,
     ``,
     `━━━━━━━━━━━━━━━━━━━━━`,
@@ -50,6 +56,7 @@ export async function sendTelegramNotification(data: PlaceData): Promise<boolean
     `<b>📍 Lugar:</b> ${data.name}`,
     `<b>🗺 Ubicación:</b> ${data.city}, ${data.state}`,
     data.address ? `<b>📌 Dirección:</b> ${data.address}` : null,
+    mapsLink || null,
     ``,
     `━━━━━━━━━━━━━━━━━━━━━`,
     ``,
@@ -66,34 +73,71 @@ export async function sendTelegramNotification(data: PlaceData): Promise<boolean
     ``,
     `━━━━━━━━━━━━━━━━━━━━━`,
     ``,
+    data.photo_urls && data.photo_urls.length > 0
+      ? `<b>🖼 Fotos:</b> ${data.photo_urls.length} adjunta(s)`
+      : null,
     `<b>🔗 Ver en web:</b>`,
     `https://movidosporlafe.vercel.app`,
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit, ms = 20000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+export async function sendTelegramNotification(data: PlaceData): Promise<boolean> {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.warn("Telegram not configured");
+    return false;
+  }
+
+  const api = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+  const text = buildMessage(data);
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    if (data.photo_urls && data.photo_urls.length > 0) {
+      const media = data.photo_urls.slice(0, 10).map((url, i) => ({
+        type: "photo" as const,
+        media: url,
+        caption: i === 0 ? text : undefined,
+        parse_mode: i === 0 ? ("HTML" as const) : undefined,
+      }));
 
-    const res = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-      {
-        signal: controller.signal,
+      const res = await fetchWithTimeout(`${api}/sendMediaGroup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: message,
-          parse_mode: "HTML",
-          disable_web_page_preview: true,
-        }),
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, media }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        const fallback = await fetchWithTimeout(`${api}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "HTML", disable_web_page_preview: true }),
+        });
+        return fallback.ok;
       }
-    );
-    clearTimeout(timeout);
+      return true;
+    }
+
+    const res = await fetchWithTimeout(`${api}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "HTML", disable_web_page_preview: true }),
+    });
     return res.ok;
   } catch (err) {
-    console.error("Telegram notification failed (timeout or network):", err);
+    console.warn("Telegram notification skipped (timeout or network):", err instanceof Error ? err.message : err);
     return false;
   }
 }

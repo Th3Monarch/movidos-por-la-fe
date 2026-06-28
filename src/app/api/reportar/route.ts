@@ -23,7 +23,10 @@ export async function POST(request: Request) {
           status: "activo",
           contact_name: body.contact_name || "",
           contact_phone: body.contact_phone || "",
-          photo_urls: [],
+          photo_urls: body.photo_urls || [],
+          video_urls: body.video_urls || [],
+          lat: body.lat || null,
+          lng: body.lng || null,
         },
       ]);
 
@@ -31,7 +34,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
     }
 
-    await sendTelegramNotification(body);
+    sendTelegramNotification(body).catch(() => {});
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {

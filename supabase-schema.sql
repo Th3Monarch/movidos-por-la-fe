@@ -15,6 +15,7 @@ CREATE TABLE places (
   contact_name TEXT DEFAULT '',
   contact_phone TEXT DEFAULT '',
   photo_urls TEXT[] DEFAULT '{}',
+  video_urls TEXT[] DEFAULT '{}',
   lat REAL,
   lng REAL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -66,3 +67,24 @@ CREATE POLICY "Actualización pública"
 CREATE POLICY "Eliminación pública"
   ON places FOR DELETE
   USING (true);
+
+-- ============================================
+-- Storage: bucket para fotos y videos
+-- ============================================
+INSERT INTO storage.buckets (id, name, public) VALUES ('reportes', 'reportes', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Permitir subida anónima al bucket
+CREATE POLICY "Subida pública"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'reportes');
+
+-- Permitir lectura pública del bucket
+CREATE POLICY "Lectura pública"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'reportes');
+
+-- Permitir eliminación pública
+CREATE POLICY "Eliminación pública"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'reportes');

@@ -110,6 +110,53 @@ export default function PlaceDetailPage() {
             <div className="mb-6">
               <h3 className="text-sm font-semibold text-gray-700 mb-1">{t("place.location")}</h3>
               <p className="text-gray-600">{place.address}</p>
+              {(place.lat && place.lng) ? (
+                <a
+                  href={`https://www.google.com/maps?q=${place.lat},${place.lng}`}
+                  target="_blank"
+                  className="text-blue-600 text-sm hover:underline inline-flex items-center gap-1 mt-1"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  Ver en Google Maps
+                </a>
+              ) : (
+                <a
+                  href={`https://www.google.com/maps/search/${encodeURIComponent(place.address + ", " + place.city + ", " + place.state)}`}
+                  target="_blank"
+                  className="text-blue-600 text-sm hover:underline inline-flex items-center gap-1 mt-1"
+                >
+                  Ver en Google Maps
+                </a>
+              )}
+            </div>
+          )}
+
+          {place.photo_urls && place.photo_urls.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Fotos</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {place.photo_urls.map((url, i) => (
+                  <a key={i} href={url} target="_blank" className="block aspect-video rounded-lg overflow-hidden bg-gray-100">
+                    <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover hover:opacity-90 transition-opacity" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {place.video_urls && place.video_urls.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Videos</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {place.video_urls.map((url, i) => (
+                  <video key={i} controls className="w-full rounded-lg bg-gray-100" preload="metadata">
+                    <source src={url} />
+                  </video>
+                ))}
+              </div>
             </div>
           )}
 

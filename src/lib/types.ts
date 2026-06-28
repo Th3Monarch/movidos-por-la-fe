@@ -29,6 +29,7 @@ export interface Place {
   contact_name: string;
   contact_phone: string;
   photo_urls: string[];
+  video_urls: string[];
   lat: number | null;
   lng: number | null;
   created_at: string;
@@ -47,5 +48,8 @@ export interface PlaceFormData {
   contact_name: string;
   contact_phone: string;
   photo_urls: string[];
+  video_urls: string[];
+  lat: number | null;
+  lng: number | null;
   reported_by: string;
 }
