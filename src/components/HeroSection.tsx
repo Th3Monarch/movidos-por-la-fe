@@ -31,9 +31,16 @@ export default function HeroSection() {
             </svg>
             {t("hero.cta")}
           </a>
-          <p className="text-sm text-blue-200 max-w-xs">
-            {t("hero.cta_hint")}
-          </p>
+          <a
+            href="/acerca"
+            className="inline-flex items-center gap-2 bg-transparent border-2 border-blue-200 text-blue-100 font-semibold px-5 py-2.5 rounded-xl hover:bg-white/10 transition-all text-base"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            ¿Y si soy centro de acopio?
+          </a>
         </div>
 
         <div className="mt-8">
