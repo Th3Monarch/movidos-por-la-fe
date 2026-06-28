@@ -40,21 +40,8 @@ export default function CentroAcopioPage() {
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
-            <h2 className="font-bold text-lg text-blue-800 mb-4">{t("acopio.how_title")}</h2>
-            <ol className="space-y-3 text-sm text-gray-700">
-              <li className="flex items-start gap-3">
-                <span className="w-7 h-7 bg-blue-200 rounded-full flex items-center justify-center shrink-0 font-bold text-blue-800 text-xs">1</span>
-                <span>{t("acopio.how1")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="w-7 h-7 bg-blue-200 rounded-full flex items-center justify-center shrink-0 font-bold text-blue-800 text-xs">2</span>
-                <span>{t("acopio.how2")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="w-7 h-7 bg-blue-200 rounded-full flex items-center justify-center shrink-0 font-bold text-blue-800 text-xs">3</span>
-                <span>{t("acopio.how3")}</span>
-              </li>
-            </ol>
+            <h2 className="font-bold text-lg text-blue-800 mb-3">{t("acopio.how_title")}</h2>
+            <p className="text-sm text-gray-700">{t("acopio.how_single")}</p>
           </div>
         </>
       ) : (
@@ -74,21 +61,8 @@ export default function CentroAcopioPage() {
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
-            <h2 className="font-bold text-lg text-blue-800 mb-4">{t("acopio.how_title")}</h2>
-            <ol className="space-y-3 text-sm text-gray-700">
-              <li className="flex items-start gap-3">
-                <span className="w-7 h-7 bg-blue-200 rounded-full flex items-center justify-center shrink-0 font-bold text-blue-800 text-xs">1</span>
-                <span>{t("acopio.how1")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="w-7 h-7 bg-blue-200 rounded-full flex items-center justify-center shrink-0 font-bold text-blue-800 text-xs">2</span>
-                <span>{t("acopio.how2")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="w-7 h-7 bg-blue-200 rounded-full flex items-center justify-center shrink-0 font-bold text-blue-800 text-xs">3</span>
-                <span>{t("acopio.how3")}</span>
-              </li>
-            </ol>
+            <h2 className="font-bold text-lg text-blue-800 mb-3">{t("acopio.how_title")}</h2>
+            <p className="text-sm text-gray-700">{t("acopio.how_single")}</p>
           </div>
         </>
       )}
