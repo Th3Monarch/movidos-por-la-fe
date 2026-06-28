@@ -68,8 +68,6 @@ export default function CentroAcopioPage() {
       )}
 
       <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-<<<<<<< HEAD
-        <p className="text-gray-700 font-medium mb-3">{t("acopio.contact_text")}</p>
         <p className="text-gray-700 font-medium mb-4">{t("acopio.contact_text")}</p>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <a
@@ -94,7 +92,6 @@ export default function CentroAcopioPage() {
             />
           </a>
         </div>
-      </div>
       </div>
 
       <div className="border-t border-gray-200 pt-8 mt-8">
