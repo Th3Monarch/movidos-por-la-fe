@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
     }
 
-    sendTelegramNotification(body).catch(() => {});
+    await sendTelegramNotification(body);
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
