@@ -33,10 +33,10 @@ export default function AcercaPage() {
                 <rect x="2" y="4" width="20" height="16" rx="2" />
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </svg>
-              {t("about.email")}: movidosporlafe@correo.com
+              {t("about.email")}: manuelaalbertoguia@gmail.com
             </a>
             <a
-              href="https://t.me/movidosporlafe"
+              href="https://t.me/+gXKabrPnx-E5NmQx"
               target="_blank"
               className="flex items-center gap-2 text-blue-700 hover:underline"
             >
