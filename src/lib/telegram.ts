@@ -105,45 +105,46 @@ export async function sendTelegramNotification(data: PlaceData): Promise<boolean
   const api = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
   const text = buildMessage(data);
 
-  let allOk = true;
+  const results = await Promise.allSettled(
+    TELEGRAM_CHAT_IDS.map(async (chatId) => {
+      try {
+        if (data.photo_urls && data.photo_urls.length > 0) {
+          const media = data.photo_urls.slice(0, 10).map((url, i) => ({
+            type: "photo" as const,
+            media: url,
+            caption: i === 0 ? text : undefined,
+            parse_mode: i === 0 ? ("HTML" as const) : undefined,
+          }));
 
-  for (const chatId of TELEGRAM_CHAT_IDS) {
-    try {
-      if (data.photo_urls && data.photo_urls.length > 0) {
-        const media = data.photo_urls.slice(0, 10).map((url, i) => ({
-          type: "photo" as const,
-          media: url,
-          caption: i === 0 ? text : undefined,
-          parse_mode: i === 0 ? ("HTML" as const) : undefined,
-        }));
-
-        const res = await fetchWithTimeout(`${api}/sendMediaGroup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: chatId, media }),
-        });
-
-        if (!res.ok) {
-          const textOnly = await fetchWithTimeout(`${api}/sendMessage`, {
+          const res = await fetchWithTimeout(`${api}/sendMediaGroup`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+            body: JSON.stringify({ chat_id: chatId, media }),
           });
-          if (!textOnly.ok) allOk = false;
+
+          if (!res.ok) {
+            const textOnly = await fetchWithTimeout(`${api}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
+            });
+            return textOnly.ok;
+          }
+          return true;
         }
-      } else {
+
         const res = await fetchWithTimeout(`${api}/sendMessage`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
         });
-        if (!res.ok) allOk = false;
+        return res.ok;
+      } catch (err) {
+        console.warn(`Telegram error for chat ${chatId}:`, err instanceof Error ? err.message : err);
+        return false;
       }
-    } catch (err) {
-      console.warn(`Telegram error for chat ${chatId}:`, err instanceof Error ? err.message : err);
-      allOk = false;
-    }
-  }
+    }),
+  );
 
-  return allOk;
+  return results.some((r) => r.status === "fulfilled" && r.value);
 }
