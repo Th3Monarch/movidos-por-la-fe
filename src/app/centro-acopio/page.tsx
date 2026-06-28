@@ -67,30 +67,37 @@ export default function CentroAcopioPage() {
         </>
       )}
 
-      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-        <p className="text-gray-700 font-medium mb-4">{t("acopio.contact_text")}</p>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+      <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <div className="text-center mb-6">
+          <p className="text-gray-700 text-lg font-medium">{t("acopio.contact_text")}</p>
+        </div>
+        <div className="flex flex-col items-center gap-6">
           <a
-            href="https://t.me/+GRUPO_LINK_AQUI"
+            href="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https://t.me/+GRUPO_LINK_AQUI"
             target="_blank"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl hover:bg-blue-700 transition-colors font-semibold shrink-0"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zM5.5 11.5l11.2-4.4c.5-.2 1 .1 1.1.6l.1.1-.6 10.2c-.1.5-.5.8-1 .8-.4 0-.7-.2-.9-.4l-3.5-2.9-1.7 1.6c-.2.2-.4.3-.7.3l.3-3.8 6.5-5.9c.2-.2 0-.3-.2-.2l-8 5.1-3.6-1.2c-.5-.2-.5-.5-.1-.6z" />
-            </svg>
-            {lang === "es" ? "Entrar al grupo de Telegram" : "Join the Telegram group"}
-          </a>
-          <a
-            href="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://t.me/+GRUPO_LINK_AQUI"
-            target="_blank"
-            className="block w-24 h-24 rounded-xl overflow-hidden border border-gray-200 hover:opacity-90 transition-opacity shrink-0"
+            className="block w-44 h-44 rounded-2xl overflow-hidden border-2 border-gray-100 hover:border-blue-200 transition-colors shadow-md hover:shadow-lg"
           >
             <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://t.me/+GRUPO_LINK_AQUI"
+              src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https://t.me/+GRUPO_LINK_AQUI"
               alt="QR del grupo de Telegram"
               className="w-full h-full object-cover"
             />
           </a>
+          <a
+            href="https://t.me/+GRUPO_LINK_AQUI"
+            target="_blank"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-colors font-semibold"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zM5.5 11.5l11.2-4.4c.5-.2 1 .1 1.1.6l.1.1-.6 10.2c-.1.5-.5.8-1 .8-.4 0-.7-.2-.9-.4l-3.5-2.9-1.7 1.6c-.2.2-.4.3-.7.3l.3-3.8 6.5-5.9c.2-.2 0-.3-.2-.2l-8 5.1-3.6-1.2c-.5-.2-.5-.5-.1-.6z" />
+            </svg>
+            {lang === "es" ? "Abrir en Telegram" : "Open in Telegram"}
+          </a>
+          <p className="text-xs text-gray-400 text-center">
+            {lang === "es"
+              ? "Escanea el código QR con tu celular para unirte al grupo"
+              : "Scan the QR code with your phone to join the group"}
+          </p>
         </div>
       </div>
 
